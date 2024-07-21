@@ -33,16 +33,16 @@ df <- df %>% filter(!(
 # Filtering for the state of SP #############################################
 # in order to use few data for model training 
 
-df <- df %>% filter(SG_UF == 35)
+# df <- df %>% filter(SG_UF == 35)
 
-df_chik <- df_chik %>% filter(SG_UF == 35)
+# df_chik <- df_chik %>% filter(SG_UF == 35)
 
 
-df <- df %>% select('CRITERIO', "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
+df <- df %>% select('SG_UF','CRITERIO', "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
                         "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
                         "PETEQUIA_N","LEUCOPENIA","LACO","DOR_RETRO") 
 
-df_chik <- df_chik %>% select('CRITERIO', "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
+df_chik <- df_chik %>% select('SG_UF','CRITERIO', "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
                              "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
                              "PETEQUIA_N","LEUCOPENIA","LACO","DOR_RETRO") 
 
@@ -50,8 +50,8 @@ df <- df %>% replace(is.na(.), 2)
 df_chik <- df_chik %>% replace(is.na(.), 2)
 
 
-write_csv(df, 'dengue_SP.csv')
-write_csv(df_chik, 'chik_SP.csv')
+write_csv(df, 'dengue_SP_1.csv')
+write_csv(df_chik, 'chik_SP_2.csv')
 
 
 
