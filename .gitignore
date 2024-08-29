@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+#all zip files
+*.zip
+
+#all csv files
+*.csv
+
