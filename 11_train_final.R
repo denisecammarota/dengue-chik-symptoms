@@ -155,7 +155,7 @@ df_train <- df_train %>% mutate(weight = ifelse(CHIK == 1, 1, 1/30))
 
 model <- glm(CHIK ~ SG_11 + SG_12 + SG_13 + SG_14 + SG_15 + SG_16+ SG_17 + SG_21 + SG_22 + SG_23 + SG_24 + SG_25 + SG_26 + SG_27 + SG_28 + SG_29 + SG_31 + SG_32 + SG_33 + SG_35 + SG_41 + SG_42 + 
                 SG_43 + SG_50 + SG_51 + SG_52  + FEBRE + MIALGIA + CEFALEIA + EXANTEMA + VOMITO + NAUSEA + DOR_COSTAS + ARTRITE + ARTRALGIA + PETEQUIA_N + LEUCOPENIA + DOR_RETRO,
-              family=binomial(link='logit'), data = df_train, weight = weight) # + SG_53
+              family=binomial(link='logit'), data = df_train) # + SG_53
 
 # Summary model
 summary(model)
@@ -237,8 +237,8 @@ sum(diag(tab_train))/sum(tab_train) # 0.7689468
 
 # Using optimal theshold of 0.56
 # Calculating sensitivity and specificity on test data and train data
-tab_test <- table(df_test$CHIK, ifelse(predicted_prob >= 0.56, 1, 0))
-tab_train <- table(df_train$CHIK, ifelse(predicted_prob_train >= 0.56, 1, 0))
+tab_test <- table(df_test$CHIK, ifelse(predicted_prob >= 0.04, 1, 0))
+tab_train <- table(df_train$CHIK, ifelse(predicted_prob_train >= 0.04, 1, 0))
 
 # sensivity TP/(TP + FN)
 tab_test[2, 2]/(tab_test[2, 2] + tab_test[2, 1]) # 0.8186351
