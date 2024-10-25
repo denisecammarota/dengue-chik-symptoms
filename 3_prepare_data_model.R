@@ -7,8 +7,8 @@ library(read.dbc)
 library(data.table)
 
 # Loading data ######################################################
-df <- fread('denv_2024.csv') # é mais rápido
-df_chik <- fread('chik_2024.csv')
+df <- fread('D:/Code/denv_2024.csv') # é mais rápido
+df_chik <- fread('D:/Code/chik_2024.csv')
 
 # Separating confirmed cases #########################################
 
@@ -38,11 +38,11 @@ df <- df %>% filter(!(
 # df_chik <- df_chik %>% filter(SG_UF == 35)
 
 
-df <- df %>% select("SG_UF","NU_IDADE_N" ,"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
+df <- df %>% select("SG_UF", "NU_IDADE_N" ,"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
                         "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
                         "PETEQUIA_N","LEUCOPENIA","LACO","DOR_RETRO") 
 
-df_chik <- df_chik %>% select("SG_UF","NU_IDADE_N" ,"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
+df_chik <- df_chik %>% select("SG_UF", "NU_IDADE_N" ,"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
                              "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
                              "PETEQUIA_N","LEUCOPENIA","LACO","DOR_RETRO") 
 
