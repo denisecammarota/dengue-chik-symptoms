@@ -81,6 +81,9 @@ model <- glm(CHIK ~ SG_UF + + FEBRE + MIALGIA + CEFALEIA + EXANTEMA + VOMITO + N
 # Summary model
 summary(model)
 
+# Exponential coefficients
+exp(model$coefficients)
+
 # ROC and AUC on train data
 
 res1 <- roc(CHIK ~ fitted(model),
@@ -203,7 +206,97 @@ df_epi <- data.frame(df_epi)
 df_epi %>% group_by(SG_UF, df_epi_pred) %>% summarise(n = n())
 table(df_epi$CHIK, df_epi$df_epi_pred)
 table(df_epi$CHIK, df_epi$SG_UF)
-table(df_epi$df_epi_pred) # 1.892.520 denv and 991.338 chik
+table(df_epi$df_epi_pred) # 1.892.520 denv and 991.338 chik 2883858
 a <- df_epi %>% group_by(SG_UF, CHIK, df_epi_pred) %>% summarise(n = n())
+
+# Calculating errors - country level predictions 
+hist_pred <- data.frame(p = predict(model, newdata = df_epi, type = 'response'))
+
+ggplot(hist_pred, aes(x=p)) +  geom_histogram(aes(y = ..density..), colour = 1, fill = "red", bins = 20) + 
+  theme_bw() + xlab('Predicted Probability') + ylab('Probability Density of CHIK') +
+  geom_vline(xintercept = best_threshold) + ggtitle('Brazil') +
+  theme_Publication(base_size = 10, base_family = 'Roboto') + theme(plot.margin = margin(6, 12,6,6,"pt"))
+
+phist <- hist(hist_pred$p, freq = FALSE, breaks = 30)
+
+n_chik <- list()
+best_threshold <- 0.04
+
+for(i in seq(1,10000,1)){
+  samplesize <- 2883858
+  bins=with(phist,sample(length(mids),samplesize,p=density,replace=TRUE)) # choose a bin
+  result=runif(length(bins),phist$breaks[bins],phist$breaks[bins+1]) # sample a uniform in it
+  result <- data.frame(r = result)
+  result <- result %>% mutate(r = ifelse(r >= best_threshold, 1, 0))
+  #n_chik <- append(n_chik, sum(result$r))
+  n_chik <- append(n_chik,as.numeric(sum(result$r)))
+}
+
+n_chik <- as.numeric(n_chik)
+n_chik <- data.frame(n_chik)
+mean_data <- mean(n_chik$n_chik)
+sd_data <- sd(n_chik$n_chik)
+conf_int <- mean_data + c(-1.96, 1.96) * sd_data/sqrt(length(data)) 
+
+ggplot(data = n_chik, aes(x = n_chik)) + 
+  geom_histogram(
+    fill = "red", color = "black") + 
+  geom_vline(xintercept = mean_data, 
+             color = "black", linetype = "dashed") + 
+  geom_ribbon(aes(ymin = 0, ymax = Inf, 
+                  xmin = conf_int[1], 
+                  xmax = conf_int[2]), 
+              fill = "gray80", alpha = 0.3) +
+  xlab("Data") + 
+  ylab("Density") + ggtitle('Estimated Chikungunya Cases for Brazil') +
+  theme_Publication(base_size = 10, base_family = 'Roboto') + theme(plot.margin = margin(6, 12,6,6,"pt"))
+
+# Calculating errors - state level predictions
+sg <- unique(df_epi$SG_UF)
+
+for(i in seq(1,27,1)){
+  sg_tmp <- sg[i]
+  print(sg_tmp)
+  df_epi_tmp <- df_epi %>% filter(SG_UF == sg_tmp)
+  sample_size <- df_epi_tmp %>% nrow()
+  hist_pred <- data.frame(p = predict(model, newdata = df_epi_tmp, type = 'response'))
+  phist <- hist(hist_pred$p, freq = FALSE, breaks = 30)
+  n_chik <- list()
+  
+  for(i in seq(1,10000,1)){
+    samplesize <- sample_size
+    bins=with(phist,sample(length(mids),samplesize,p=density,replace=TRUE)) # choose a bin
+    result=runif(length(bins),phist$breaks[bins],phist$breaks[bins+1]) # sample a uniform in it
+    result <- data.frame(r = result)
+    result <- result %>% mutate(r = ifelse(r >= best_threshold, 1, 0))
+    n_chik <- append(n_chik,as.numeric(sum(result$r)))
+  }
+  n_chik <- as.numeric(n_chik)
+  n_chik <- data.frame(n_chik)
+  mean_data <- mean(n_chik$n_chik)
+  sd_data <- sd(n_chik$n_chik)
+  conf_int <- mean_data + c(-1.96, 1.96) * sd_data/sqrt(length(data)) 
+  print(paste0('Mean: ',mean_data))
+  print(paste0('CI: ',conf_int))
+  print(paste0('Original: ',df_epi_tmp %>% filter(CHIK == 1) %>% nrow()))
+  print(paste0('Total Arbo Epi: ', df_epi_tmp %>% nrow()))
+  
+  p <- ggplot(data = n_chik, aes(x = n_chik)) + 
+    geom_histogram(
+      fill = "red", color = "black") + 
+    geom_vline(xintercept = mean_data, 
+               color = "black", linetype = "dashed") + 
+    geom_ribbon(aes(ymin = 0, ymax = Inf, 
+                    xmin = conf_int[1], 
+                    xmax = conf_int[2]), 
+                fill = "gray80", alpha = 0.3) + 
+    ggtitle(paste0('Histogram for SG_UF =', sg_tmp)) + 
+    xlab("Data") + 
+    ylab("Density") + theme_bw()
+  print(p)
+  
+}
+
+
 
 

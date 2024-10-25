@@ -1,0 +1,21 @@
+col_1 <- df_denv_lab %>% group_by(SG_UF) %>% summarise(n = n())
+colnames(col_1) <- c('SG_UF', 'DENV LAB')
+col_2 <- df_chik_lab %>% group_by(SG_UF) %>% summarise(n = n())
+colnames(col_2) <- c('SG_UF', 'CHIK LAB')
+col_3 <- df_chik_epi %>% group_by(SG_UF) %>% summarise(n = n())
+colnames(col_3) <- c('SG_UF', 'CHIK EPI')
+df_epi_pred_chik <- df_epi %>% filter(df_epi_pred == 1)
+col_4 <- df_epi_pred_chik %>% group_by(SG_UF) %>% summarise(n = n())
+colnames(col_4) <- c('SG_UF', 'CHIK EPI CORR')
+col_5 <- df_denv_epi %>% group_by(SG_UF) %>% summarise(n = n())
+colnames(col_5) <- c('SG_UF', 'DENV EPI')
+
+df <- col_1 %>% left_join(col_2, by = join_by(SG_UF))
+df <- df %>% left_join(col_5, by = join_by(SG_UF))
+df <- df %>% left_join(col_3, by = join_by(SG_UF))
+cols <- c('SG_UF')
+col_4[cols] <- lapply(col_4[cols], as.character)
+col_4[cols] <- lapply(col_4[cols], as.numeric)
+df <- df %>% left_join(col_4, by = join_by(SG_UF))
+df[is.na(df)] <- 0
+df['DENV EPI CORR'] <- df['DENV EPI'] + df['CHIK EPI'] - df['CHIK EPI CORR']
