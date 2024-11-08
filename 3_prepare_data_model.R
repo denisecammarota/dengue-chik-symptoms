@@ -7,8 +7,8 @@ library(read.dbc)
 library(data.table)
 
 # Loading data ######################################################
-df <- fread('D:/Code/denv_2024.csv') # é mais rápido
-df_chik <- fread('D:/Code/chik_2024.csv')
+df <- fread('D:/Code/denv_2024_3.csv') # é mais rápido
+df_chik <- fread('D:/Code/chik_2024_3.csv')
 
 # Separating confirmed cases #########################################
 
@@ -38,11 +38,11 @@ df <- df %>% filter(!(
 # df_chik <- df_chik %>% filter(SG_UF == 35)
 
 
-df <- df %>% select("SG_UF", "NU_IDADE_N" ,"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
+df <- df %>% select("SG_UF",'ID_MN_RESI','HOSPITALIZ','NU_IDADE_N',"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
                         "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
                         "PETEQUIA_N","LEUCOPENIA","LACO","DOR_RETRO") 
 
-df_chik <- df_chik %>% select("SG_UF", "NU_IDADE_N" ,"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
+df_chik <- df_chik %>% select("SG_UF",'ID_MN_RESI','HOSPITALIZ','NU_IDADE_N',"CRITERIO", "FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
                              "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
                              "PETEQUIA_N","LEUCOPENIA","LACO","DOR_RETRO") 
 
@@ -50,8 +50,8 @@ df <- df %>% replace(is.na(.), 2)
 df_chik <- df_chik %>% replace(is.na(.), 2)
 
 
-write_csv(df, 'denv_2024_processed.csv')
-write_csv(df_chik, 'chik_2024_processed.csv')
+write_csv(df, 'denv_2024_processed_3.csv')
+write_csv(df_chik, 'chik_2024_processed_3.csv')
 
 
 

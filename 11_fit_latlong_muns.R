@@ -16,8 +16,8 @@ set.seed(42)
 setwd('C:/Users/denis/Documents/dengue-chik-symptoms')
 
 # Reading data from dengue and chikungunya and separating 
-df_denv <- read.csv('denv_2024_processed_2.csv')
-df_chik <- read.csv('chik_2024_processed_2.csv')
+df_denv <- read.csv('denv_2024_processed_3.csv')
+df_chik <- read.csv('chik_2024_processed_3.csv')
 
 #df_denv <- df_denv %>% select(!SG_UF)
 #df_chik <- df_chik %>% select(!SG_UF)
@@ -51,6 +51,21 @@ df_total <- df_total %>% mutate(fx_etaria = case_when(
   NU_IDADE_N >= 70 & NU_IDADE_N <= 79 ~ '70 a 79',
   NU_IDADE_N >= 80 ~ '80 e +'
 )) %>% select(!NU_IDADE_N)
+
+# Creating region
+df_total <- df_total %>% mutate(region = 
+                                  case_when(SG_UF < 20 ~ 'NO',
+                                            SG_UF < 30 ~ 'NE',
+                                            SG_UF < 40 ~ 'SE',
+                                            SG_UF < 50 ~ 'SU',
+                                            SG_UF < 60 ~ 'CO'))
+df_total <- df_total %>% mutate(region = as.factor(region))
+df_total <- df_total %>% drop_na()
+
+# Adding latlong
+load('latlong.RData')
+municipalities <- municipalities %>% mutate(ID_MN_RESI = as.numeric(ID_MN_RESI))
+df_total <- df_total %>% left_join(municipalities, by = join_by(ID_MN_RESI))
 df_total <- df_total %>% drop_na()
 
 # Eliminating criteria, changing symptoms to 1 or 0
@@ -60,6 +75,9 @@ df_total[df_total == 2] <- 0
 
 # Changing hospitalization character
 df_total <- df_total %>% mutate(HOSPITALIZ = ifelse(HOSPITALIZ == 1, 1, 0))
+
+# Choosing a municipality
+df_total <- df_total %>% filter(SG_UF == 24)
 
 # Turning into factors
 #cols <- colnames(df_total)[colnames(df_total) != 'CHIK']
@@ -79,7 +97,7 @@ df_test <- df_test %>% select(!row)
 
 # Train the best and most simple model
 
-model <- glm(CHIK ~ SG_UF + HOSPITALIZ + fx_etaria + FEBRE + MIALGIA + CEFALEIA + EXANTEMA + VOMITO + NAUSEA + DOR_COSTAS + ARTRITE + ARTRALGIA + PETEQUIA_N + LEUCOPENIA + DOR_RETRO,
+model <- glm(CHIK ~ lat + long + HOSPITALIZ + fx_etaria + FEBRE + MIALGIA + CEFALEIA + EXANTEMA + VOMITO + NAUSEA + DOR_COSTAS + ARTRITE + ARTRALGIA + PETEQUIA_N + LEUCOPENIA + DOR_RETRO,
              family=binomial(link='logit'), data = df_train)
 
 # Summary model
@@ -88,7 +106,9 @@ summary(model)
 # Exponential coefficients
 exp(model$coefficients)
 
+
 # ROC and AUC on train data
+
 
 res1 <- roc(CHIK ~ fitted(model),
             data = df_train
@@ -210,7 +230,17 @@ df_epi <- df_epi %>% mutate(fx_etaria = case_when(
   NU_IDADE_N >= 70 & NU_IDADE_N <= 79 ~ '70 a 79',
   NU_IDADE_N >= 80 ~ '80 e +'
 )) %>% select(!NU_IDADE_N)
+df_epi <- df_epi %>% mutate(region = 
+                              case_when(SG_UF < 20 ~ 'NO',
+                                        SG_UF < 30 ~ 'NE',
+                                        SG_UF < 40 ~ 'SE',
+                                        SG_UF < 50 ~ 'SU',
+                                        SG_UF < 60 ~ 'CO'))
+df_epi <- df_epi %>% mutate(region = as.factor(region))
+municipalities <- municipalities %>% mutate(ID_MN_RESI = as.numeric(ID_MN_RESI))
+df_epi <- df_epi %>% left_join(municipalities, by = join_by(ID_MN_RESI))
 df_epi <- df_epi %>% drop_na()
+df_epi <- df_epi %>% filter(SG_UF == 24)
 cols <- c('SG_UF')
 df_epi[cols] <- lapply(df_epi[cols], as.factor)
 df_epi_pred <- ifelse(predict(model, newdata = df_epi, type = 'response') >= best_threshold, 1, 0)

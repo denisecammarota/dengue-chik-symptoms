@@ -51,8 +51,16 @@ df_total <- df_total %>% mutate(fx_etaria = case_when(
   NU_IDADE_N >= 70 & NU_IDADE_N <= 79 ~ '70 a 79',
   NU_IDADE_N >= 80 ~ '80 e +'
 )) %>% select(!NU_IDADE_N)
-df_total <- df_total %>% drop_na()
 
+# Creating region
+df_total <- df_total %>% mutate(region = 
+                                  case_when(SG_UF < 20 ~ 'NO',
+                                            SG_UF < 30 ~ 'NE',
+                                            SG_UF < 40 ~ 'SE',
+                                            SG_UF < 50 ~ 'SU',
+                                            SG_UF < 60 ~ 'CO'))
+df_total <- df_total %>% mutate(region = as.factor(region))
+df_total <- df_total %>% drop_na()
 # Eliminating criteria, changing symptoms to 1 or 0
 df_total <- df_total %>% select(!CRITERIO)
 df_total[df_total == 2] <- 0
@@ -70,7 +78,7 @@ df_total[cols] <- lapply(df_total[cols], as.factor)
 # Train and test split
 df_total$row <- 1:nrow(df_total)
 
-df_train <- stratified(df_total, c('CHIK'), 0.7)
+df_train <- stratified(df_total, c('CHIK','region'), 0.7)
 df_test <- df_total[!(df_total$row %in% df_train$row),]
 
 # Eliminating the row index
@@ -79,7 +87,7 @@ df_test <- df_test %>% select(!row)
 
 # Train the best and most simple model
 
-model <- glm(CHIK ~ SG_UF + HOSPITALIZ + fx_etaria + FEBRE + MIALGIA + CEFALEIA + EXANTEMA + VOMITO + NAUSEA + DOR_COSTAS + ARTRITE + ARTRALGIA + PETEQUIA_N + LEUCOPENIA + DOR_RETRO,
+model <- glm(CHIK ~ region + HOSPITALIZ + FEBRE + MIALGIA + CEFALEIA + EXANTEMA + VOMITO + NAUSEA + DOR_COSTAS + ARTRITE + ARTRALGIA + PETEQUIA_N + LEUCOPENIA + DOR_RETRO,
              family=binomial(link='logit'), data = df_train)
 
 # Summary model
@@ -88,7 +96,9 @@ summary(model)
 # Exponential coefficients
 exp(model$coefficients)
 
+
 # ROC and AUC on train data
+
 
 res1 <- roc(CHIK ~ fitted(model),
             data = df_train
@@ -210,6 +220,14 @@ df_epi <- df_epi %>% mutate(fx_etaria = case_when(
   NU_IDADE_N >= 70 & NU_IDADE_N <= 79 ~ '70 a 79',
   NU_IDADE_N >= 80 ~ '80 e +'
 )) %>% select(!NU_IDADE_N)
+df_epi <- df_epi %>% mutate(region = 
+                                  case_when(SG_UF < 20 ~ 'NO',
+                                            SG_UF < 30 ~ 'NE',
+                                            SG_UF < 40 ~ 'SE',
+                                            SG_UF < 50 ~ 'SU',
+                                            SG_UF < 60 ~ 'CO'))
+df_epi <- df_epi %>% mutate(region = as.factor(region))
+
 df_epi <- df_epi %>% drop_na()
 cols <- c('SG_UF')
 df_epi[cols] <- lapply(df_epi[cols], as.factor)

@@ -70,7 +70,7 @@ df_total[cols] <- lapply(df_total[cols], as.factor)
 # Train and test split
 df_total$row <- 1:nrow(df_total)
 
-df_train <- stratified(df_total, c('CHIK'), 0.7)
+df_train <- stratified(df_total, c('CHIK','SG_UF'), 0.7)
 df_test <- df_total[!(df_total$row %in% df_train$row),]
 
 # Eliminating the row index
