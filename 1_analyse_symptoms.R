@@ -9,6 +9,9 @@ df <- read.dbc('D:/DENGBR24.dbc') # é mais rápido
 df_chik <- read.dbc(
   'D:/CHIKBR24.dbc')
 
+df <- df %>% filter(SG_UF == 52)
+df_chik <- df_chik %>% filter(SG_UF == 52)
+
 # Casos de dengue e de chik ##################################################################
 
 # Confirmados de dengue
@@ -60,12 +63,8 @@ table(df_chik$CRITERIO)
 df_tmp <- df
 df_chik_tmp <- df_chik
 
-
-#df_tmp <- df %>% filter(CRITERIO == 2)
-#df_chik_tmp <- df_chik %>% filter(CRITERIO == 2)
-
-casos_dengue <- 4699509
-casos_chik <- 164990
+casos_dengue <- dim(df_tmp)[1]
+casos_chik <- dim(df_chik_tmp)[1]
 
 sintomas <- c("FEBRE","MIALGIA","CEFALEIA","EXANTEMA","VOMITO",
               "NAUSEA","DOR_COSTAS", "CONJUNTVIT","ARTRITE","ARTRALGIA",
