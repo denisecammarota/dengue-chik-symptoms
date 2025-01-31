@@ -1,0 +1,26 @@
+========================================
+Study Summary
+----------------------------------------
+Best Parameters: {'n_estimators': 658, 'max_depth': 5, 'learning_rate': 0.0613555565798845, 'min_child_weight': 9}
+Best AUC-PR Value: 0.6812
+
+Best Model Results
+----------------------------------------
+Test Metrics:
+Optimal Threshold: 0.3143
+AUC-PR Score: 0.6903
+Confusion Matrix:
+[[38898  2121]
+ [ 1915  3556]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.95      0.95      0.95     41019
+           1       0.63      0.65      0.64      5471
+
+    accuracy                           0.91     46490
+   macro avg       0.79      0.80      0.79     46490
+weighted avg       0.91      0.91      0.91     46490
+
+========================================
